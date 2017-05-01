@@ -176,15 +176,14 @@ public class GameState {
     }
 
 
-    // determines when to cutoff the tree
-//    public Boolean terminal() {
-//        return wins("A") || wins("O") || moves().size() == 0;
-//    }
-
-    public Boolean cutoff(int depth) {
-        return wins("A") || wins("O") || moves().size() == 0 || depth > 5;
+    public Boolean terminal() {
+        return wins("A") || wins("O") || moves().size() == 0;
     }
 
+    // determines when to cutoff the tree
+    public Boolean cutoff(int depth) {
+        return wins("A") || wins("O") || moves().size() == 0 || depth > 4;
+    }
 
     // returns utility
     public Double utility() {
@@ -198,13 +197,22 @@ public class GameState {
             return null;
     }
 
+    // returns the estimated utility
     public Double utility(String mark) {
-        if (mark.equals("A")) {
+        if (wins("A"))
+            return 1.0;
+
+        else if (wins("O"))
+            return -1.0;
+
+        else if (moves().size() == 0)
+            return 0.0;
+
+        else if (mark.equals("A"))
             return (eval(mark) - eval("O"));
-        }
-        else {
+
+        else
             return (eval(mark) - eval("A"));
-        }
     }
 
     public static void main(String[] args) {

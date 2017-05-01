@@ -21,6 +21,7 @@ public class MinAgent implements Agent {
 //        Values next_move = min_value(state);
 
         Values next_move = min_value(state, -10000.0, 10000.0);
+        System.out.println(next_move.getMove());
         return next_move.getMove();
     }
 
@@ -66,6 +67,10 @@ public class MinAgent implements Agent {
             return new Values(state.utility(mark), null);
         }
 
+//        if (state.terminal()) {
+//            return new Values(state.utility(), null);
+//        }
+
         // Alpha-beta pruning
         // very small negative number
         Values v = new Values(10000.0, null);
@@ -90,14 +95,12 @@ public class MinAgent implements Agent {
 
             if (v.getValue() <= alpha) {
                 //v.setMove(move);
-                state.increment();
                 return v;
             }
 
             if (v.getValue() < beta)
                 beta = v.getValue();
         }
-        state.increment();
         return v;
     }
 
