@@ -21,7 +21,6 @@ public class MaxAgent implements Agent {
 //        Values next_move = max_value(state);
 
         Values next_move = max_value(state, -10000.0, 10000.0);
-        System.out.println(next_move.getMove());
         return next_move.getMove();
     }
 
@@ -67,10 +66,6 @@ public class MaxAgent implements Agent {
             return new Values(state.utility(mark), null);
         }
 
-//        if (state.terminal()) {
-//            return new Values(state.utility(), null);
-//        }
-
         // Alpha-beta pruning
         Values v = new Values(-10000.0, null);
         boolean marked = false;
@@ -83,7 +78,6 @@ public class MaxAgent implements Agent {
                 marked = true;
             }
             Values next = new MinAgent().min_value(child, alpha, beta); // (value, next_move)
-
             Values value = new Values(next.getValue(), move); // (value, move)
 
             if (value.getValue() > v.getValue()) {

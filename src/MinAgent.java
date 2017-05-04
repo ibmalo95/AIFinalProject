@@ -21,7 +21,6 @@ public class MinAgent implements Agent {
 //        Values next_move = min_value(state);
 
         Values next_move = min_value(state, -10000.0, 10000.0);
-        System.out.println(next_move.getMove());
         return next_move.getMove();
     }
 

@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -137,42 +138,74 @@ public class GameState {
         return right || left;
     }
 
-    public Double eval(String mark) {
-        Double number = 0.0;
+    // get the values of each line
+    public HashMap<String, Double[]> eval() {
+        HashMap<String, Double[]> values = new HashMap<String, Double[]>();
         for (int r = 0; r < size; r++) {
-            int row = 0;
-            int col = 0;
+            Double rowA = 0.0;
+            Double colA = 0.0;
+            Double rowO = 0.0;
+            Double colO = 0.0;
             for (int c = 0; c < size; c++) {
-                // by rows
-                if (grid[r][c].equals("-") || grid[r][c].equals(mark)) {
-                    row++;
-                }
-                //  by columns
-                if (grid[c][r].equals("-") || grid[c][r].equals(mark)) {
-                    col++;
-                }
+                if (grid[r][c].equals("A"))
+                    rowA++;
+                if (grid[r][c].equals("O"))
+                    rowO++;
+                if (grid[c][r].equals("A"))
+                    colA++;
+                if (grid[c][r].equals("O"))
+                    colO++;
             }
-            if (row == size)
-                number++;
-            if (col == size)
-                number++;
+            values.put("row" + r, new Double[] {rowA, rowO});
+            values.put("col" + r, new Double[]{colA, colO});
         }
-        int left = 0;
-        int right = 0;
+        Double leftA = 0.0;
+        Double rightA = 0.0;
+        Double leftO = 0.0;
+        Double rightO = 0.0;
         for (int r = 0; r < size; r++) {
-
-            if (grid[r][r].equals("-") || grid[r][r].equals(mark)) {
-                right++;
-            }
-            if (grid[r][size-r-1].equals("-") || grid[r][size-r-1].equals(mark))
-                left++;
+            if (grid[r][r].equals("A"))
+                rightA++;
+            if (grid[r][r].equals("O"))
+                rightO++;
+            if (grid[r][size - r - 1].equals("A"))
+                leftA++;
+            if (grid[r][size - r - 1].equals("O"))
+                leftO++;
         }
-        if (right == size)
-            number++;
-        if (left == size)
-            number++;
+        values.put("diagonal1", new Double[] {rightA, rightO});
+        values.put("diagonal2", new Double[] {leftA, leftO});
 
-        return number;
+        return values;
+    }
+
+    // return the score
+    public Double score() {
+        HashMap<String, Double[]> values = eval();
+        Double score = 0.0;
+
+        for (String line: values.keySet()) {
+            Double[] value = values.get(line);
+            if (value[0] == 4.0)
+                score += 100.0;
+            else if (value[1] == 4.0)
+                score += -100.0;
+            else if (value[0] == 3.0)
+                score += 50.0;
+            else if (value[1] == 3.0)
+                score += -50.0;
+            else if (value[0] == 2.0)
+                score += 10.0;
+            else if (value[1] == 2.0)
+                score += -10.0;
+            else if (value[0] == 1.0)
+                score += 1.0;
+            else if (value[1] == 1.0)
+                score += -1.0;
+            else
+                score += 0.0;
+        }
+        return score;
     }
 
 
@@ -182,7 +215,7 @@ public class GameState {
 
     // determines when to cutoff the tree
     public Boolean cutoff(int depth) {
-        return wins("A") || wins("O") || moves().size() == 0 || depth > 4;
+        return wins("A") || wins("O") || moves().size() == 0 || depth > 2;
     }
 
     // returns utility
@@ -199,32 +232,11 @@ public class GameState {
 
     // returns the estimated utility
     public Double utility(String mark) {
-        if (wins("A"))
-            return 1.0;
-
-        else if (wins("O"))
-            return -1.0;
-
-        else if (moves().size() == 0)
-            return 0.0;
-
-        else if (mark.equals("A"))
-            return (eval(mark) - eval("O"));
-
-        else
-            return (eval(mark) - eval("A"));
+        return score();
     }
 
     public static void main(String[] args) {
         GameState game = new GameState(4);
-//        game.grid[0][0] = "O";
-//        game.grid[3][0] = "O";
-//        game.grid[1][1] = "O";
-//        game.grid[2][0] = "O";
-//        game.grid[2][2] = "A";
-//        game.grid[2][1] = "A";
-//        game.grid[3][3] = "A";
-//        game.grid[1][3] = "A";
 
         game.display();
 

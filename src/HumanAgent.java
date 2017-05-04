@@ -14,15 +14,23 @@ public class HumanAgent implements Agent{
 
     @Override
     public Point move(GameState state) {
-        // get user input
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter a row: ");
         int row = scanner.nextInt();
         System.out.println("Enter a col: ");
         int col = scanner.nextInt();
-
-        // convert to a point
         Point move = new Point(row, col);
+
+        // get user input
+        while (!state.moves().contains(move)) {
+            System.out.println("Not a move... enter new row: ");
+            row = scanner.nextInt();
+            System.out.println("Not a move... enter new col: ");
+            col = scanner.nextInt();
+            move = new Point(row, col);
+        }
+
         return move;
     }
 
