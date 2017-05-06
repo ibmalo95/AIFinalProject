@@ -17,66 +17,29 @@ public class MaxAgent implements Agent {
     public Point move(GameState state) {
 
         System.out.println("Thinking...");
-        // check to see what alpha and beta are supposed to start at
-//        Values next_move = max_value(state);
 
-        Values next_move = max_value(state, -10000.0, 10000.0);
+        Values next_move = max_value(state, -1000000, 1000000);
         return next_move.getMove();
     }
 
-    // Minimax without pruning
-    public Values max_value(GameState state) {
-
-        // if the state is terminal return the utility
-        if (state.cutoff(state.getHeight())) {
-            // return the estimate of what the utility would be
-            return new Values(state.utility(), null);
-        }
-
-        ArrayList<Values> values = new ArrayList<Values>();
-        for (Point move: state.moves()) {
-            GameState child = state.neighbor(move, mark);
-//            child.display();
-            Values next = new MinAgent().min_value(child); // (value, next_move)
-//            System.out.println(next.getValue());
-            Values value = new Values(next.getValue(), move); // (value, move)
-            values.add(value);
-        }
-
-        // get the maximum value
-        Double max = values.get(0).getValue();
-        int max_index = 0;
-        for (int i = 1; i < values.size(); i++) {
-            Values next = values.get(i);
-            if (next.getValue() >= max) {
-                max = next.getValue();
-                max_index = i;
-            }
-        }
-        // return max (value, move)
-        return values.get(max_index);
-    }
-
     // Minimax with alpha beta pruning
-    public Values max_value(GameState state, Double alpha, Double beta) {
-        //state.incrementHeight();
+    public Values max_value(GameState state, int alpha, int beta) {
+
         // if the state is terminal return the utility
         if (state.cutoff(state.getHeight())) {
             // return the estimate of what the utility would be
-            return new Values(state.utility(mark), null);
+            return new Values(state.utility(state), null);
         }
+        int height = state.getHeight() + 1;
 
         // Alpha-beta pruning
-        Values v = new Values(-10000.0, null);
-        boolean marked = false;
+        Values v = new Values(-1000000, null);
+
         for (Point move: state.moves()) {
             GameState child = state.neighbor(move, mark);
+            child.setHeight(height);
 
             // check to see what alpha and beta are supposed to start at
-            if (!marked) {
-                child.increment();
-                marked = true;
-            }
             Values next = new MinAgent().min_value(child, alpha, beta); // (value, next_move)
             Values value = new Values(next.getValue(), move); // (value, move)
 
@@ -84,11 +47,11 @@ public class MaxAgent implements Agent {
                 v.setValue(value.getValue());
                 v.setMove(value.getMove());
             }
-            if (v.getValue() >= beta) {
+            else if (v.getValue() >= beta) {
                 return v;
             }
 
-            if (v.getValue() > alpha)
+            else if (v.getValue() > alpha)
                 alpha = v.getValue();
         }
         return v;

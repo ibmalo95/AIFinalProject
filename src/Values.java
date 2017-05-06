@@ -5,15 +5,15 @@ import java.awt.*;
  */
 public class Values {
 
-    Double value;
+    int value;
     Point move;
 
-    public Values(Double value, Point move) {
+    public Values(int value, Point move) {
         this.value = value;
         this.move = move;
     }
 
-    public Double getValue() {
+    public int getValue() {
         return value;
     }
 
@@ -21,7 +21,7 @@ public class Values {
         return move;
     }
 
-    public void setValue(Double next_value) {
+    public void setValue(int next_value) {
         value = next_value;
     }
 
