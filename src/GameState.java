@@ -13,56 +13,19 @@ public class GameState {
     private int height;
     private int win;
     private int maxDepth;
-    private int blocked;
 
-    public GameState(int size, boolean first) {
+    public GameState(int size) {
         this.size = size;
         this.height = 1;
-        this.win = 3;
-        if (size <= 5) {
-            this.maxDepth = 6;
-            this.blocked = 2;
-        }
-        else if (size <= 9) {
-            this.maxDepth = 4;
-            blocked = 5;
-        }
-        else {
-            this.maxDepth = 2;
-            blocked = 5;
-        }
-        ArrayList<Point> blocks = new ArrayList<Point>();
-        if (first) {
-            // Generate random row number and column numbers that should be blocks
-            if (height == 1) {
-                Random randomizer = new Random();
-
-                for (int i = 0; i < blocked; i++) {
-                    int row = randomizer.nextInt(size);
-                    int col = randomizer.nextInt(size);
-                    Point block = new Point(row, col);
-
-                    while (blocks.contains(block)) {
-                        row = randomizer.nextInt(size);
-                        col = randomizer.nextInt(size);
-                        block = new Point(row, col);
-                    }
-                    blocks.add(block);
-                }
-            }
-        }
-
+        this.win = size - 2;
+        maxDepth = 5;
 
         grid = new String[size][size];
         for (int r = 0; r < size; r++) {
             String[] row = new String[size];
             grid[r] = row;
             for (int c = 0; c < size; c++) {
-                Point x = new Point(r,c);
-                if (blocks.contains(x))
-                    row[c] = "X";
-                else
-                    row[c] = "-";
+                row[c] = "-";
             }
         }
     }
@@ -85,7 +48,8 @@ public class GameState {
         }
         System.out.println();
     }
-    // return the (r,c) of the empty grid spaces
+
+    // return the row and column of the empty grid spaces
     public ArrayList<Point> moves() {
         ArrayList<Point> moves = new ArrayList<Point>();
         for (int r = 0; r < size; r++) {
@@ -102,7 +66,7 @@ public class GameState {
     public GameState neighbor(Point move, String mark) {
 
         // deep copy of the current state
-        GameState neighbor = new GameState(this.size, false);
+        GameState neighbor = new GameState(this.size);
         neighbor.height = this.height;
 
         for (int r = 0; r < this.size; r++) {
@@ -128,7 +92,7 @@ public class GameState {
 
 
     public Boolean wins(String mark) {
-        return rows(mark) || cols(mark) || diagonal(mark);
+        return rows(mark) || cols(mark);
     }
 
     public Boolean rows(String mark) {
@@ -149,7 +113,6 @@ public class GameState {
     public Boolean cols(String mark) {
         for (int c = 0; c < size; c++) {
             int start = 0;
-            boolean complete = true;
             for (int r = 0; r < size; r++) {
                 if (!grid[r][c].equals(mark))
                     start = 0;
@@ -162,91 +125,38 @@ public class GameState {
         return false;
     }
 
-    public Boolean diagonal(String mark) {
-        int right = 0;
-        int left = 0;
-        for (int r = 0; r < size; r++) {
-            if (!grid[r][r].equals(mark))
-                right = 0;
-            else
-                right++;
-            if (!grid[r][size - r - 1].equals(mark))
-                left = 0;
-            else
-                right++;
-
-            if (right == win)
-                return true;
-            else if (left == win)
-                return true;
-        }
-        return false;
-    }
-
-    // get the values of each line
+    // Count the number of A's and O's in each row and column
     public HashMap<String, int[]> eval(GameState state) {
         HashMap<String, int[]> values = new HashMap<String, int[]>();
+        int count = 0;
+
         for (int r = 0; r < size; r++) {
             int rowA = 0;
             int colA = 0;
             int rowO = 0;
             int colO = 0;
-            int rowX = 0;
-            int colX = 0;
             for (int c = 0; c < size; c++) {
                 String row = state.grid[r][c];
                 String col = state.grid[c][r];
-
-                if (row.equals("A") && rowO == 0)
+                if (row.equals("A"))
                     rowA++;
                 else if (row.equals("O"))
                     rowO++;
-                else if (row.equals("X"))
-                    rowX++;
+
                 if (col.equals("A"))
                     colA++;
                 else if (col.equals("O"))
                     colO++;
-                else if (col.equals("X"))
-                    colX++;
             }
-
-            values.put("row" + r, new int[]{rowA, rowO, rowX});
-
-            values.put("col" + r, new int[]{colA, colO, colX});
+            values.put("row" + count, new int[]{rowA, rowO});
+            values.put("col" + count, new int[]{colA, colO});
+            count++;
         }
-        int leftA = 0;
-        int rightA = 0;
-        int leftO = 0;
-        int rightO = 0;
-        int leftX = 0;
-        int rightX = 0;
-        for (int r = 0; r < size; r++) {
-            String right = state.grid[r][r];
-            String left = state.grid[r][size - r - 1];
-
-            if (right.equals("A"))
-                rightA++;
-            else if (right.equals("O"))
-                rightO++;
-            else if (right.equals("X"))
-                rightX++;
-
-            if (left.equals("A"))
-                leftA++;
-            else if (left.equals("O"))
-                leftO++;
-            else if (left.equals("X"))
-                leftX++;
-        }
-
-        values.put("diagonal1", new int[]{leftA, leftO, leftX});
-        values.put("diagonal2", new int[]{rightA, rightO, rightX});
 
         return values;
     }
 
-    // return the score
+    // Evaluate the score of each line and sum them together
     public int score(GameState state) {
         HashMap<String, int[]> values = eval(state);
         int score = 0;
@@ -255,31 +165,85 @@ public class GameState {
             int[] value = values.get(line);
             int lineA = value[0];
             int lineO = value[1];
-            int lineX = value[2];
 
             if (lineO == 0 && lineA == 0) {
                 // do nothing
             }
-            else if (lineA >= 3) {
-                score += 50;
+            else if (lineO == 0) {
+                if (lineA == 5)
+                    score += 100;
+                else if (lineA == 4)
+                    score += 70;
+                else if (lineA == 3)
+                    score += 50;
+                else if (lineA == 2)
+                    score += 30;
+                else if (lineA == 1)
+                    score += 1;
             }
-            else if (lineA == 2) {
-                score += 10;
-            }
-            else if (lineA == 1) {
-                score += 1;
-            }
-            else if (lineO >= 3) {
-                score += -50;
-            }
-            else if (lineO == 2) {
-                score += -10;
+            else if (lineA == 0 || lineA == 1) {
+                if (lineO == 5)
+                    score += -100;
+                else if (lineO == 4)
+                    score += -70;
+                else if (lineO == 3)
+                    score += -50;
+                else if (lineO == 2)
+                    score += -30;
+                else if (lineO == 1)
+                    score += -1;
             }
             else if (lineO == 1) {
-                score += - 1;
+                if (lineA == 5)
+                    score += 70;
+                else if (lineA == 4)
+                    score += 50;
+                else if (lineA == 3)
+                    score += 30;
+                else if (lineA == 2)
+                    score += 10;
+                else if (lineA == 1)
+                    score += 1;
+            }
+
+            else if (lineA == 1) {
+                if (lineO == 5)
+                    score += -70;
+                else if (lineO == 4)
+                    score += -50;
+                else if (lineO == 3)
+                    score += -30;
+                else if (lineO == 2)
+                    score += -10;
+                else if (lineO == 1)
+                    score += -1;
+            }
+            else if (lineO == 2) {
+                if (lineA == 5)
+                    score += 50;
+                else if (lineA == 4)
+                    score += 30;
+                else if (lineA == 3)
+                    score += 10;
+                else if (lineA == 2)
+                    score += 5;
+                else if (lineA == 1)
+                    score += 1;
+            }
+
+            else if (lineA == 2) {
+                if (lineO == 5)
+                    score += -50;
+                else if (lineO == 4)
+                    score += -30;
+                else if (lineO == 3)
+                    score += -10;
+                else if (lineO == 2)
+                    score += -5;
+                else if (lineO == 1)
+                    score += -1;
             }
         }
-
         return score;
     }
 
@@ -295,13 +259,13 @@ public class GameState {
     }
 
     public static void main(String[] args) {
-        int gameSize = 6;
-        GameState game = new GameState(gameSize, true);
+        int gameSize = 7;
+        GameState game = new GameState(gameSize);
 
         game.display();
 
         Agent[] agents = {new MaxAgent(), new HumanAgent("O")};
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < gameSize * gameSize; i++) {
             Agent agent = agents[i%2];
             Point move = agent.move(game);
 

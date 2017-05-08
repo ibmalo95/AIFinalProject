@@ -26,7 +26,7 @@ public class HumanAgent implements Agent{
         while (!state.moves().contains(move)) {
             System.out.println("Not a move... enter new row: ");
             row = scanner.nextInt();
-            System.out.println("Not a move... enter new col: ");
+            System.out.println("Enter new col: ");
             col = scanner.nextInt();
             move = new Point(row, col);
         }
