@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 /**
  * Created by Ina on 4/8/17.
@@ -171,9 +170,9 @@ public class GameState {
             }
             else if (lineO == 0) {
                 if (lineA == 5)
-                    score += 100;
+                    score += 150;
                 else if (lineA == 4)
-                    score += 70;
+                    score += 100;
                 else if (lineA == 3)
                     score += 50;
                 else if (lineA == 2)
@@ -183,9 +182,9 @@ public class GameState {
             }
             else if (lineA == 0 || lineA == 1) {
                 if (lineO == 5)
-                    score += -100;
+                    score += -150;
                 else if (lineO == 4)
-                    score += -70;
+                    score += -100;
                 else if (lineO == 3)
                     score += -50;
                 else if (lineO == 2)
@@ -195,7 +194,7 @@ public class GameState {
             }
             else if (lineO == 1) {
                 if (lineA == 5)
-                    score += 70;
+                    score += 100;
                 else if (lineA == 4)
                     score += 50;
                 else if (lineA == 3)
@@ -208,7 +207,7 @@ public class GameState {
 
             else if (lineA == 1) {
                 if (lineO == 5)
-                    score += -70;
+                    score += -100;
                 else if (lineO == 4)
                     score += -50;
                 else if (lineO == 3)
